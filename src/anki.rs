@@ -7,7 +7,9 @@ use crate::utils;
 
 fn get_anki_id() -> usize {
     let mut rng = rand::thread_rng();
-    rng.gen()
+    let id:i32 = rng.gen_range(0..99999999);
+
+    id as usize
 }
 
 fn create_anki_deck_model() -> Model {
