@@ -12,7 +12,7 @@ fn get_jplt_dir() -> Result<PathBuf> {
 fn get_dir(category: &str) -> Result<PathBuf> {
     let dir = get_jplt_dir()?.join(category);
 
-    fs::create_dir(&dir)?;
+    fs::create_dir_all(&dir)?;
 
     Ok(dir)
 }
