@@ -18,9 +18,9 @@ fn get_dir(category: &str) -> Result<PathBuf> {
 }
 
 pub fn get_tsv_dir() -> Result<PathBuf> {
-    Ok(get_dir("tsv")?)
+    get_dir("tsv")
 }
 
 pub fn get_anki_dir() -> Result<PathBuf> {
-    Ok(get_dir("anki")?)
+    get_dir("anki")
 }

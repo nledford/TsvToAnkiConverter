@@ -1,4 +1,4 @@
-use std::{env, process};
+use std::env;
 
 use anyhow::Result;
 

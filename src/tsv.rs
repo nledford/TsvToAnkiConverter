@@ -1,5 +1,4 @@
-use std::{env, process};
-use std::path::Path;
+use std::process;
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -49,13 +48,13 @@ impl Record {
 }
 
 fn get_level(file_name: &str) -> String {
-    if file_name.contains("1") {
+    if file_name.contains('1') {
         String::from("N1")
-    } else if file_name.contains("2") {
+    } else if file_name.contains('2') {
         String::from("N2")
-    } else if file_name.contains("3") {
+    } else if file_name.contains('3') {
         String::from("N3")
-    } else if file_name.contains("4") {
+    } else if file_name.contains('4') {
         String::from("N4")
     } else {
         String::from("N5")
@@ -106,10 +105,7 @@ fn load_from_tsv_file(file: &str, level: &str) -> Result<Vec<Record>> {
 
         let kanji = result.get(0).unwrap();
 
-        let details = match result.get(3) {
-            Some(details) => Some(details.to_string()),
-            None => None,
-        };
+        let details = result.get(3).map(|details| details.to_string());
 
         let definition = match result.get(2) {
             Some(definition) => definition.to_string(),
