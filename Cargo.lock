@@ -299,6 +299,7 @@ dependencies = [
  "anyhow",
  "csv",
  "genanki-rs",
+ "rand",
  "serde",
  "walkdir",
 ]

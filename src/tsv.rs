@@ -1,5 +1,14 @@
+use std::{env, process};
+use std::path::Path;
+
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use walkdir::WalkDir;
+
+pub struct JlptLevel {
+    pub level: String,
+    pub records: Vec<Record>,
+}
 
 /// Represents a `.tsv` file from https://github.com/MHohenberg/JPLT_Vocabulary
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -36,9 +45,48 @@ impl Record {
     }
 }
 
-pub fn load_from_tsv_file() -> Result<Vec<Record>> {
-    // TODO use walkdir to load all .tsv files
-    let path = "../jlpt-anki/jplt/tsv/jplt-n5_japanese_english.tsv";
+fn get_level(file_name: &str) -> String {
+    if file_name.contains("1") {
+        String::from("N1")
+    } else if file_name.contains("2") {
+        String::from("N2")
+    } else if file_name.contains("3") {
+        String::from("N3")
+    } else if file_name.contains("4") {
+        String::from("N4")
+    } else {
+        String::from("N5")
+    }
+}
+
+pub fn load_tsv_files() -> Result<Vec<JlptLevel>> {
+    let mut levels = Vec::new();
+
+    let path = Path::new(env::current_dir()?.as_path()).join("jplt").join("tsv");
+
+    for entry in WalkDir::new(path) {
+        let entry = entry?;
+
+        if entry.path().is_dir() {
+            continue
+        }
+
+        let file_name = entry.file_name().to_str().unwrap();
+        let jlpt_level = get_level(file_name);
+
+        println!("Level: {}", &jlpt_level);
+
+        println!("Fetching data from {}...", entry.path().display());
+        let records = load_from_tsv_file(entry.path().to_str().unwrap(), &jlpt_level)?;
+
+        let level = JlptLevel { level: jlpt_level, records };
+        levels.push(level)
+    }
+
+    Ok(levels)
+}
+
+fn load_from_tsv_file(file: &str, level: &str) -> Result<Vec<Record>> {
     let mut rdr = csv::ReaderBuilder::new()
         // Source files are .tsv
         .delimiter(b'\t')
@@ -46,7 +94,7 @@ pub fn load_from_tsv_file() -> Result<Vec<Record>> {
         .has_headers(false)
         // Source files may or may not have a details column (my nomenclature)
         .flexible(true)
-        .from_path(path)?;
+        .from_path(file)?;
 
     let mut records = Vec::new();
 
@@ -54,15 +102,26 @@ pub fn load_from_tsv_file() -> Result<Vec<Record>> {
     for result in rdr.records() {
         let result = result?;
 
+        let kanji = result.get(0).unwrap();
+
         let details = match result.get(3) {
             Some(details) => Some(details.to_string()),
             None => None,
         };
 
+        let definition = match result.get(2) {
+            Some(definition) => definition.to_string(),
+            None => {
+                println!("\nCannot find definition for word: {}", kanji);
+                println!("Current Level: {}\n", level);
+                process::exit(1)
+            }
+        };
+
         let record = Record {
-            kanji: result.get(0).unwrap().to_string(),
+            kanji: kanji.to_string(),
             romanji: result.get(1).unwrap().to_string(),
-            definition: result.get(2).unwrap().to_string(),
+            definition,
             details,
         };
 

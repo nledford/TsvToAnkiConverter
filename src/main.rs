@@ -1,17 +1,13 @@
+use std::{env, process};
+
+use anyhow::Result;
+
 use jplt_anki::tsv;
-use std::process;
 
-fn main() {
-    match tsv::load_from_tsv_file() {
-        Ok(records) => {
-            println!("Total records: {}", records.len());
+fn main() -> Result<()> {
+    env::set_var("RUST_BACKTRACE", "full");
 
-            let details_record = records.get(326).unwrap();
-            details_record.print()
-        }
-        Err(err) => {
-            println!("Error loading tsv file: {}", err);
-            process::exit(1)
-        }
-    }
+    let levels = tsv::load_tsv_files()?;
+
+    Ok(())
 }
