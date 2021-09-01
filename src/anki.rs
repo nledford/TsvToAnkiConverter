@@ -51,9 +51,9 @@ fn create_anki_deck(model: &Model, level: &JlptLevel) -> Result<()> {
     // Save deck to file
     let file_name = format!("Japanese {}.apkg", jlpt_level);
     let anki_path = utils::get_anki_dir()?;
-    let final_path = anki_path.join(file_name).to_str().unwrap();
+    let final_path = anki_path.join(file_name);
 
-    deck.write_to_file(final_path);
+    deck.write_to_file(final_path.to_str().unwrap())?;
 
     Ok(())
 }
