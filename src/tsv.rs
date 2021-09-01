@@ -5,6 +5,9 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use walkdir::WalkDir;
 
+use crate::utils;
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JlptLevel {
     pub level: String,
     pub records: Vec<Record>,
@@ -62,13 +65,12 @@ fn get_level(file_name: &str) -> String {
 pub fn load_tsv_files() -> Result<Vec<JlptLevel>> {
     let mut levels = Vec::new();
 
-    let path = Path::new(env::current_dir()?.as_path()).join("jplt").join("tsv");
-
+    let path = utils::get_tsv_dir()?;
     for entry in WalkDir::new(path) {
         let entry = entry?;
 
         if entry.path().is_dir() {
-            continue
+            continue;
         }
 
         let file_name = entry.file_name().to_str().unwrap();
