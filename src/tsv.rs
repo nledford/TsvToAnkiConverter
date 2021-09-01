@@ -3,14 +3,14 @@ use serde::{Deserialize, Serialize};
 
 /// Represents a `.tsv` file from https://github.com/MHohenberg/JPLT_Vocabulary
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct JpltTsv {
+pub struct Record {
     pub kanji: String,
     pub romanji: String,
     pub definition: String,
     pub details: Option<String>,
 }
 
-impl Default for JpltTsv {
+impl Default for Record {
     fn default() -> Self {
         Self {
             kanji: String::default(),
@@ -21,11 +21,7 @@ impl Default for JpltTsv {
     }
 }
 
-impl JpltTsv {
-    pub fn get_details(&self) -> String {
-        todo!()
-    }
-
+impl Record {
     pub fn print(&self) {
         println!("Kanji: {}", self.kanji);
         println!("Romanji: {}", self.romanji);
@@ -40,7 +36,7 @@ impl JpltTsv {
     }
 }
 
-pub fn load_from_tsv_file() -> Result<Vec<JpltTsv>> {
+pub fn load_from_tsv_file() -> Result<Vec<Record>> {
     // TODO use walkdir to load all .tsv files
     let path = "../jlpt-anki/jplt/tsv/jplt-n5_japanese_english.tsv";
     let mut rdr = csv::ReaderBuilder::new()
@@ -63,7 +59,7 @@ pub fn load_from_tsv_file() -> Result<Vec<JpltTsv>> {
             None => None,
         };
 
-        let record = JpltTsv {
+        let record = Record {
             kanji: result.get(0).unwrap().to_string(),
             romanji: result.get(1).unwrap().to_string(),
             definition: result.get(2).unwrap().to_string(),
