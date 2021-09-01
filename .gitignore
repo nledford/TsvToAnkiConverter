@@ -1,5 +1,2 @@
 .idea
 /target
-
-# 2021-09-01 Temporary ignore since we don't want to add anki decks to source control just yet
-/jplt/anki
