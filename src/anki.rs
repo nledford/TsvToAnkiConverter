@@ -13,16 +13,14 @@ fn get_anki_id() -> usize {
 }
 
 fn create_anki_deck_model() -> Model {
-    let model = Model::new(
+    Model::new(
         get_anki_id(),
         "Simple Model",
         vec![Field::new("Question"), Field::new("Answer")],
         vec![Template::new("Card 1")
             .qfmt("{{Question}}")
             .afmt(r#"{{FrontSide}}<hr id="answer">{{Answer}}"#)],
-    );
-
-    model
+    )
 }
 
 pub fn create_anki_decks(levels: Vec<JlptLevel>) -> Result<()> {
@@ -79,7 +77,7 @@ fn create_anki_note(model: &Model, record: &Record) -> Result<Note> {
         }
     };
 
-    let note = Note::new(model.clone(), vec![&question, &answer])?;
+    let note = Note::new(model.clone(), vec![question, &answer])?;
 
     Ok(note)
 }
