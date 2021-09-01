@@ -4,4 +4,8 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+anyhow = "1.0.43"
+csv = "1.1.6"
 genanki-rs = "0.1.2"
+serde = { version = "1.0.130", features = ["derive"] }
+walkdir = "2.3.2"
