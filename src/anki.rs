@@ -29,6 +29,7 @@ pub fn create_anki_decks(levels: Vec<JlptLevel>) -> Result<()> {
     let model = create_anki_deck_model();
 
     for level in levels {
+        println!("Current level: {}", &level.level);
         create_anki_deck(&model, &level)?
     }
 
