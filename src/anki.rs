@@ -7,19 +7,38 @@ use crate::utils;
 
 fn get_anki_id() -> usize {
     let mut rng = rand::thread_rng();
-    let id:i32 = rng.gen_range(0..99999999);
+    let id: i32 = rng.gen_range(10000000..99999999);
 
     id as usize
 }
 
 fn create_anki_deck_model() -> Model {
-    Model::new(
+    let custom_css = r#"
+        .question {
+            font-size: 5rem;
+            font-weight: bold;
+        }
+    "#;
+
+    Model::new_with_options(
         get_anki_id(),
-        "Simple Model",
-        vec![Field::new("Question"), Field::new("Answer")],
-        vec![Template::new("Card 1")
-            .qfmt("{{Question}}")
-            .afmt(r#"{{FrontSide}}<hr id="answer">{{Answer}}"#)],
+        "JLPT Model",
+        vec![Field::new("Question"), Field::new("Answer"), Field::new("Romanji")],
+        vec![Template::new("JLPT Card")
+            .qfmt(r#"<div class="question">{{Question}}</div>"#)
+            .afmt(
+                r#"
+                    {{FrontSide}}
+                    <hr id="answer">
+                    {{Answer}}
+                    <br><br>
+                    {{Romanji}}"#
+            )],
+        Some(custom_css),
+        None,
+        None,
+        None,
+        None,
     )
 }
 
@@ -71,14 +90,14 @@ fn create_anki_note(model: &Model, record: &Record) -> Result<Note> {
     let question = kanji;
     let answer = match details {
         Some(details) => {
-            format!("{} ({})\n{}", definition, details, romanji)
+            format!("{} ({})", definition, details)
         }
         None => {
-            format!("{}\n{}", definition, romanji)
+            format!("{}\n", definition)
         }
     };
 
-    let note = Note::new(model.clone(), vec![question, &answer])?;
+    let note = Note::new(model.clone(), vec![question, &answer, romanji])?;
 
     Ok(note)
 }
