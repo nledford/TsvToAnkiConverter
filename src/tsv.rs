@@ -8,8 +8,14 @@ use crate::utils;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JlptLevel {
-    pub level: String,
+    pub level: i32,
     pub records: Vec<Record>,
+}
+
+impl JlptLevel {
+    pub fn get_n_level(&self) -> String {
+        format!("N{}", self.level)
+    }
 }
 
 /// Represents a `.tsv` file from https://github.com/MHohenberg/JPLT_Vocabulary
@@ -47,17 +53,17 @@ impl Record {
     }
 }
 
-fn get_level(file_name: &str) -> String {
+fn get_level(file_name: &str) -> i32 {
     if file_name.contains('1') {
-        String::from("N1")
+        1
     } else if file_name.contains('2') {
-        String::from("N2")
+        2
     } else if file_name.contains('3') {
-        String::from("N3")
+        3
     } else if file_name.contains('4') {
-        String::from("N4")
+        4
     } else {
-        String::from("N5")
+        5
     }
 }
 
@@ -78,7 +84,7 @@ pub fn load_tsv_files() -> Result<Vec<JlptLevel>> {
         println!("Level: {}", &jlpt_level);
 
         println!("Fetching data from {}...", entry.path().display());
-        let records = load_from_tsv_file(entry.path().to_str().unwrap(), &jlpt_level)?;
+        let records = load_from_tsv_file(entry.path().to_str().unwrap(), jlpt_level)?;
 
         let level = JlptLevel { level: jlpt_level, records };
         levels.push(level)
@@ -87,7 +93,7 @@ pub fn load_tsv_files() -> Result<Vec<JlptLevel>> {
     Ok(levels)
 }
 
-fn load_from_tsv_file(file: &str, level: &str) -> Result<Vec<Record>> {
+fn load_from_tsv_file(file: &str, level: i32) -> Result<Vec<Record>> {
     let mut rdr = csv::ReaderBuilder::new()
         // Source files are .tsv
         .delimiter(b'\t')
@@ -105,16 +111,21 @@ fn load_from_tsv_file(file: &str, level: &str) -> Result<Vec<Record>> {
 
         let kanji = result.get(0).unwrap();
 
-        let details = result.get(3).map(|details| details.to_string());
+        let mut details = result.get(3).map(|details| details.to_string());
 
-        let definition = match result.get(2) {
+        let mut definition = match result.get(2) {
             Some(definition) => definition.to_string(),
             None => {
                 println!("\nCannot find definition for word: {}", kanji);
-                println!("Current Level: {}\n", level);
+                println!("Current Level: N{}\n", level);
                 process::exit(1)
             }
         };
+
+        if definition.is_empty() && details.is_some() {
+            definition = details.unwrap();
+            details = None;
+        }
 
         let record = Record {
             kanji: kanji.to_string(),
