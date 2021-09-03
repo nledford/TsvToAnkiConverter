@@ -56,9 +56,11 @@ pub fn create_anki_decks(levels: Vec<JlptLevel>) -> Result<()> {
 }
 
 fn create_anki_deck(model: &Model, level: &JlptLevel) -> Result<()> {
-    let jlpt_level = &level.level;
+    let jlpt_level = &level.get_n_level();
 
-    let mut deck = Deck::new(get_anki_id(),
+    let deck_id = 10000000 + level.level as usize;
+
+    let mut deck = Deck::new(deck_id,
                              &format!("Japanese {}", jlpt_level),
                              &format!("Deck for studying Japanese vocabulary at the {} level", jlpt_level),
     );
@@ -97,7 +99,7 @@ fn create_anki_note(model: &Model, record: &Record) -> Result<Note> {
         }
     };
 
-    let note = Note::new(model.clone(), vec![question, &answer, romanji])?;
+    let note = Note::new(model.to_owned(), vec![question, &answer, romanji])?;
 
     Ok(note)
 }
