@@ -1,16 +1,8 @@
 use anyhow::Result;
 use genanki_rs::{Deck, Field, Model, Note, Template};
-use rand::Rng;
 
 use crate::tsv::{JlptLevel, Record};
 use crate::utils;
-
-fn get_anki_id() -> usize {
-    let mut rng = rand::thread_rng();
-    let id: i32 = rng.gen_range(10000000..99999999);
-
-    id as usize
-}
 
 fn create_anki_deck_model() -> Model {
     let custom_css = r#"
@@ -21,7 +13,7 @@ fn create_anki_deck_model() -> Model {
     "#;
 
     Model::new_with_options(
-        get_anki_id(),
+        10000000,
         "JLPT Model",
         vec![Field::new("Question"), Field::new("Answer"), Field::new("Romanji")],
         vec![Template::new("JLPT Card")
@@ -58,7 +50,7 @@ pub fn create_anki_decks(levels: Vec<JlptLevel>) -> Result<()> {
 fn create_anki_deck(model: &Model, level: &JlptLevel) -> Result<()> {
     let jlpt_level = &level.get_n_level();
 
-    let deck_id = 10000000 + level.level as usize;
+    let deck_id = 11000000 + level.level as usize;
 
     let mut deck = Deck::new(deck_id,
                              &format!("Japanese {}", jlpt_level),
